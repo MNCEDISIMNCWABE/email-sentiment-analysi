@@ -1,0 +1,18 @@
+2025-05-31 20:18:56,810 - model_training - INFO - Downloaded NLTK wordnet
+2025-05-31 20:18:56,810 - root - ERROR - Failed to load credentials: [Errno 2] No such file or directory: '../credentials.yaml'
+2025-05-31 20:19:31,813 - model_training - INFO - Downloaded NLTK wordnet
+2025-05-31 20:19:37,096 - model_training - INFO - Model loaded successfully from email_sentiment_model.pkl
+2025-05-31 20:19:38,410 - __main__ - INFO - Date Sent: 2025-05-31 15:57:27+00:00
+2025-05-31 20:19:38,410 - __main__ - INFO - From: Google Takeout <noreply@google.com>
+2025-05-31 20:19:38,410 - __main__ - INFO - Subject: Your Google data is ready to download
+2025-05-31 20:19:38,410 - __main__ - INFO - Sentiment: positive
+2025-05-31 20:19:38,410 - __main__ - INFO - Confidence: 54.00%
+
+2025-05-31 20:22:28,999 - model_training - INFO - Downloaded NLTK wordnet
+2025-05-31 20:22:34,440 - model_training - INFO - Model loaded successfully from email_sentiment_model.pkl
+2025-05-31 20:22:35,709 - __main__ - INFO - Date Sent: 2025-05-31 15:57:27+00:00
+2025-05-31 20:22:35,709 - __main__ - INFO - From: Google Takeout <noreply@google.com>
+2025-05-31 20:22:35,710 - __main__ - INFO - Subject: Your Google data is ready to download
+2025-05-31 20:22:35,710 - __main__ - INFO - Sentiment: positive
+2025-05-31 20:22:35,710 - __main__ - INFO - Confidence: 54.00%
+
