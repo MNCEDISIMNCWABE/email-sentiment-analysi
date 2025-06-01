@@ -3,7 +3,7 @@ name: Email Sentiment Analysis
 on:
   schedule:
     # Run every hour 
-    - cron: '0 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
