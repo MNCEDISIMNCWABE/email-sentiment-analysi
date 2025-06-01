@@ -5,7 +5,7 @@ from email.utils import parsedate_to_datetime
 import pandas as pd
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 
 def load_credentials():
@@ -28,25 +28,47 @@ def load_last_processed_time():
         if os.path.exists('last_processed.json'):
             with open('last_processed.json', 'r') as f:
                 data = json.load(f)
-                return datetime.fromisoformat(data['last_processed'])
+                # Parse as timezone-aware datetime
+                dt = datetime.fromisoformat(data['last_processed'])
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt
         else:
-            # If no previous run, start from 1 hour ago
-            return datetime.now() - timedelta(hours=1)
+            # If no previous run, start from 1 hour ago (timezone-aware)
+            return datetime.now(timezone.utc) - timedelta(hours=1)
     except Exception as e:
         logging.warning(f"Could not load last processed time: {e}")
-        return datetime.now() - timedelta(hours=1)
+        return datetime.now(timezone.utc) - timedelta(hours=1)
 
 def save_last_processed_time(timestamp):
     """Save the timestamp of the last processed email."""
     try:
+        # Ensure timestamp is timezone-aware
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
+        
         with open('last_processed.json', 'w') as f:
             json.dump({'last_processed': timestamp.isoformat()}, f)
     except Exception as e:
         logging.error(f"Could not save last processed time: {e}")
 
+def normalize_datetime(dt):
+    """Normalize datetime to timezone-aware UTC."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        # Assume naive datetime is UTC
+        return dt.replace(tzinfo=timezone.utc)
+    else:
+        # Convert to UTC if it has timezone info
+        return dt.astimezone(timezone.utc)
+
 def get_new_emails_since(last_processed_time, imap_server='imap.gmail.com'):
     """Fetch emails received after the last processed time."""
     email_address, password = load_credentials()
+    
+    # Normalize last_processed_time to timezone-aware
+    last_processed_time = normalize_datetime(last_processed_time)
     
     # Connect to the email server
     mail = imaplib.IMAP4_SSL(imap_server)
@@ -55,7 +77,8 @@ def get_new_emails_since(last_processed_time, imap_server='imap.gmail.com'):
     
     try:
         # Search for emails since the last processed time
-        since_date = last_processed_time.strftime('%d-%b-%Y')
+        # Use a broader date range to ensure we don't miss emails due to timezone issues
+        since_date = (last_processed_time - timedelta(days=1)).strftime('%d-%b-%Y')
         status, email_ids = mail.search(None, f'SINCE {since_date}')
         
         if status != 'OK' or not email_ids[0]:
@@ -80,6 +103,8 @@ def get_new_emails_since(last_processed_time, imap_server='imap.gmail.com'):
                 date_header = email_message.get("Date")
                 if date_header:
                     email_date = parsedate_to_datetime(date_header)
+                    email_date = normalize_datetime(email_date)
+                    
                     # Only process emails newer than last processed time
                     if email_date <= last_processed_time:
                         continue
