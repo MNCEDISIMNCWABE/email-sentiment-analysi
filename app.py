@@ -34,22 +34,40 @@ def predict_sentiment_for_new_emails(model_path, new_emails_df):
         return []
 
 def main():
-
+    logger.info("Starting email sentiment analysis...")
+    
     model_path = 'email_sentiment_model.pkl'
-    new_email_df = get_latest_email()
-
-    predictions = predict_sentiment_for_new_emails(model_path, new_email_df)
+    new_emails_df = get_latest_email()
+    
+    # Check if there are any new emails
+    if new_emails_df.empty:
+        logger.info("No new emails to process.")
+        return
+    
+    logger.info(f"Processing {len(new_emails_df)} new email(s)")
+    
+    predictions = predict_sentiment_for_new_emails(model_path, new_emails_df)
+    
+    if not predictions:
+        logger.warning("No predictions generated")
+        return
+    
+    # Process each email and its prediction
     for idx, prediction in enumerate(predictions):
-        email_details = new_email_df.iloc[idx]
+        email_details = new_emails_df.iloc[idx]
         date_sent = email_details['date_sent']
         from_email = email_details['from_email']
         subject = email_details['subject']
-
+        
+        logger.info(f"=== EMAIL {idx + 1} ===")
         logger.info("Date Sent: %s", date_sent)
         logger.info("From: %s", from_email)
         logger.info("Subject: %s", subject)
         logger.info("Sentiment: %s", prediction['sentiment'])
-        logger.info("Confidence: %.2f%%\n", prediction['confidence'] * 100)
+        logger.info("Confidence: %.2f%%", prediction['confidence'] * 100)
+        logger.info("=" * 50)
+    
+    logger.info("Email sentiment analysis completed.")
 
 if __name__ == "__main__":
     main()
