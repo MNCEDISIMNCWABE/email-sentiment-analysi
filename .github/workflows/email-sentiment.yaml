@@ -14,18 +14,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        
-    - name: Run email sentiment analysis
+    - name: Build Docker image
+      run: docker build -t email-sentiment-analyzer .
+      
+    - name: Run Docker container
       env:
         EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-      run: python app.py
+      run: |
+        docker run --rm \
+          -e EMAIL_ADDRESS="${EMAIL_ADDRESS}" \
+          -e EMAIL_PASSWORD="${EMAIL_PASSWORD}" \
+          email-sentiment-analyzer
