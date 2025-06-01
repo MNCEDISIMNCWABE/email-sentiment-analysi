@@ -5,21 +5,26 @@ from email.utils import parsedate_to_datetime
 import pandas as pd
 import yaml
 import logging
+import os
 
-def load_credentials(filepath):
-    """Load email credentials from a YAML file."""
+def load_credentials():
+    """Load email credentials from environment variables."""
     try:
-        with open(filepath, 'r') as file:
-            credentials = yaml.safe_load(file)
-            return credentials['user'], credentials['password']
+        email_address = os.getenv('EMAIL_ADDRESS')
+        password = os.getenv('EMAIL_PASSWORD')
+        
+        if not email_address or not password:
+            raise ValueError("EMAIL_ADDRESS and EMAIL_PASSWORD environment variables must be set")
+        
+        return email_address, password
     except Exception as e:
         logging.error(f"Failed to load credentials: {e}")
         raise
 
-def get_latest_email(credentials_file='credentials.yaml', imap_server='imap.gmail.com'):
+def get_latest_email(imap_server='imap.gmail.com'):
     """Fetch the latest email from the inbox and return it as a DataFrame."""
     # Load credentials
-    email_address, password = load_credentials(credentials_file)
+    email_address, password = load_credentials()
 
     # Connect to the email server
     mail = imaplib.IMAP4_SSL(imap_server)

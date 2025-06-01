@@ -36,7 +36,7 @@ def predict_sentiment_for_new_emails(model_path, new_emails_df):
 def main():
 
     model_path = 'email_sentiment_model.pkl'
-    new_email_df = get_latest_email('credentials.yaml')
+    new_email_df = get_latest_email()
 
     predictions = predict_sentiment_for_new_emails(model_path, new_email_df)
     for idx, prediction in enumerate(predictions):
